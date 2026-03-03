@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progetto Sirus — Capital.com Live</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060b14;
+  --surface: #0d1520;
+  --surface2: #141f30;
+  --border: #1a2840;
+  --accent: #00c8ff;
+  --accent2: #00ff9d;
+  --warn: #ffaa00;
+  --danger: #ff3355;
+  --gold: #ffd700;
+  --text: #dde6f0;
+  --muted: #4a6080;
+  --mono: 'Space Mono', monospace;
+  --display: 'Syne', sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:var(--mono); min-height:100vh; overflow-x:hidden; }
+
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,200,255,0.07) 0%, transparent 60%);
+}
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image: linear-gradient(rgba(0,200,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,200,255,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ── HEADER ── */
+header {
+  position:relative; z-index:20;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 28px;
+  background:rgba(6,11,20,0.95);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(16px);
+}
+.logo { display:flex; align-items:center; gap:12px; }
+.logo-mark {
+  width:38px; height:38px; border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--display); font-weight:800; font-size:17px; color:var(--bg);
+}
+.logo-name { font-family:var(--display); font-weight:800; font-size:19px; }
+.logo-name span { color:var(--accent); }
+.logo-sub { font-size:9px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-top:2px; }
+
+.hdr-right { display:flex; align-items:center; gap:18px; }
+.session-pill {
+  display:flex; align-items:center; gap:7px;
+  padding:6px 12px; border-radius:20px;
+  border:1px solid var(--border); font-size:11px; color:var(--muted);
+  letter-spacing:.08em; text-transform:uppercase;
+}
+.sdot { width:7px; height:7px; border-radius:50%; background:var(--muted); flex-shrink:0; }
+.sdot.on { background:var(--accent2); box-shadow:0 0 8px var(--accent2); animation:pulse 2s infinite; }
+.sdot.warn { background:var(--warn); }
+.sdot.off { background:var(--danger); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.clock { font-size:13px; color:var(--accent); letter-spacing:.1em; }
+
+/* ── CONNECTION BAR ── */
+#conn-bar {
+  position:relative; z-index:15;
+  padding:10px 28px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:rgba(13,21,32,0.9); border-bottom:1px solid var(--border);
+  font-size:11px;
+}
+#conn-bar label { color:var(--accent); text-transform:uppercase; letter-spacing:.1em; white-space:nowrap; }
+.conn-input {
+  background:rgba(0,0,0,0.5); border:1px solid var(--border); border-radius:6px;
+  padding:7px 12px; color:var(--text); font-family:var(--mono); font-size:11px;
+}
+.conn-input:focus { outline:none; border-color:var(--accent); }
+#conn-email { width:180px; }
+#conn-pass  { width:130px; }
+#conn-key   { width:200px; }
+.btn {
+  padding:7px 16px; border-radius:6px; border:none; cursor:pointer;
+  font-family:var(--mono); font-size:11px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; transition:all .2s; white-space:nowrap;
+}
+.btn-accent { background:var(--accent); color:var(--bg); }
+.btn-accent:hover { background:#29d6ff; }
+.btn-green  { background:var(--accent2); color:var(--bg); }
+.btn-green:hover { background:#29ffa8; }
+.btn-danger { background:var(--danger); color:#fff; }
+.btn-danger:hover { background:#ff5577; }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--muted); }
+.btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+.btn-warn { background:var(--warn); color:var(--bg); }
+.btn-warn:hover { background:#ffc020; }
+.btn:disabled { opacity:.4; cursor:not-allowed; transform:none !important; }
+
+#conn-status { font-size:11px; }
+#conn-status.ok   { color:var(--accent2); }
+#conn-status.err  { color:var(--danger); }
+#conn-status.info { color:var(--warn); }
+
+.mode-toggle {
+  margin-left:auto; display:flex; align-items:center; gap:8px;
+}
+.mode-btn {
+  padding:5px 12px; border-radius:20px; border:1px solid var(--border);
+  font-family:var(--mono); font-size:10px; color:var(--muted); cursor:pointer;
+  background:transparent; transition:all .2s; letter-spacing:.06em;
+}
+.mode-btn.active.demo { border-color:var(--warn); color:var(--warn); background:rgba(255,170,0,.08); }
+.mode-btn.active.live { border-color:var(--danger); color:var(--danger); background:rgba(255,51,85,.08); }
+
+/* ── LAYOUT ── */
+.app {
+  position:relative; z-index:5;
+  display:grid; grid-template-columns:1fr 360px;
+  height:calc(100vh - 105px);
+}
+.left  { display:flex; flex-direction:column; border-right:1px solid var(--border); overflow:hidden; }
+.right { display:flex; flex-direction:column; background:var(--surface); }
+
+/* ── TABS ── */
+.tabs { display:flex; background:var(--surface); border-bottom:1px solid var(--border); }
+.tab {
+  padding:13px 18px; background:none; border:none; cursor:pointer;
+  font-family:var(--mono); font-size:10px; color:var(--muted);
+  letter-spacing:.08em; text-transform:uppercase;
+  border-bottom:2px solid transparent; transition:all .2s;
+}
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+.tab:hover  { color:var(--text); }
+
+.pane { display:none; flex:1; overflow-y:auto; padding:20px; flex-direction:column; gap:16px; }
+.pane.active { display:flex; }
+
+/* ── ALERT ── */
+.alert { border-radius:8px; padding:11px 15px; font-size:11px; border:1px solid; display:flex; align-items:center; gap:10px; }
+.alert.hidden  { display:none; }
+.alert.danger  { background:rgba(255,51,85,.1); border-color:var(--danger); color:#ff7799; }
+.alert.warn    { background:rgba(255,170,0,.08); border-color:var(--warn); color:var(--warn); }
+.alert.ok      { background:rgba(0,255,157,.05); border-color:var(--accent2); color:var(--accent2); }
+.alert.info    { background:rgba(0,200,255,.06); border-color:var(--accent); color:var(--accent); }
+
+/* ── KPI ROW ── */
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+.kpi {
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:14px; position:relative; overflow:hidden;
+}
+.kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.kpi.blue::before  { background:var(--accent); }
+.kpi.green::before { background:var(--accent2); }
+.kpi.warn::before  { background:var(--warn); }
+.kpi.red::before   { background:var(--danger); }
+.kpi-label { font-size:9px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:6px; }
+.kpi-val   { font-family:var(--display); font-size:22px; font-weight:800; }
+.kpi-val.pos { color:var(--accent2); }
+.kpi-val.neg { color:var(--danger); }
+.kpi-val.neu { color:var(--accent); }
+.kpi-sub   { font-size:9px; color:var(--muted); margin-top:4px; }
+.pbar { background:var(--surface2); border-radius:3px; height:4px; margin-top:6px; overflow:hidden; }
+.pfill { height:100%; border-radius:3px; transition:width .5s; }
+.pfill.g { background:linear-gradient(90deg,var(--accent2),#00e88c); }
+.pfill.r { background:linear-gradient(90deg,var(--warn),var(--danger)); }
+
+/* ── STATS ── */
+.stats-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.stat {
+  background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  padding:12px; text-align:center;
+}
+.stat .v { font-family:var(--display); font-size:20px; font-weight:800; }
+.stat .l { font-size:9px; color:var(--muted); margin-top:3px; letter-spacing:.08em; text-transform:uppercase; }
+
+/* ── SESSIONS ── */
+.sess-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.sess {
+  padding:10px; border-radius:8px; border:1px solid var(--border);
+  text-align:center; transition:all .3s; opacity:.4;
+}
+.sess.active-sess { opacity:1; }
+.sess .st { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; }
+.sess .sn { font-size:11px; font-weight:700; margin-top:3px; }
+
+/* ── POSITIONS TABLE ── */
+.section-hdr {
+  font-family:var(--display); font-size:12px; font-weight:700;
+  color:var(--muted); text-transform:uppercase; letter-spacing:.1em;
+  padding-bottom:8px; border-bottom:1px solid var(--border);
+}
+.tbl { width:100%; border-collapse:collapse; font-size:11px; }
+.tbl th {
+  padding:9px 10px; text-align:left; background:var(--surface2);
+  color:var(--muted); font-size:9px; letter-spacing:.1em; text-transform:uppercase;
+  border-bottom:1px solid var(--border); font-weight:400;
+}
+.tbl td { padding:9px 10px; border-bottom:1px solid rgba(26,40,64,.5); }
+.tbl tr:hover td { background:rgba(0,200,255,.02); }
+
+.badge {
+  display:inline-block; padding:2px 7px; border-radius:4px;
+  font-size:9px; font-weight:700; letter-spacing:.07em;
+}
+.badge.WIN  { background:rgba(0,255,157,.12); color:var(--accent2); }
+.badge.LOSS { background:rgba(255,51,85,.12); color:var(--danger); }
+.badge.BE   { background:rgba(255,215,0,.12); color:var(--gold); }
+.badge.OPEN { background:rgba(0,200,255,.12); color:var(--accent); }
+.badge.BUY  { background:rgba(0,255,157,.1); color:var(--accent2); }
+.badge.SELL { background:rgba(255,51,85,.1); color:var(--danger); }
+
+.pl-p { color:var(--accent2); font-weight:700; }
+.pl-n { color:var(--danger); font-weight:700; }
+
+.del-btn { background:none; border:none; cursor:pointer; color:var(--muted); font-size:12px; padding:1px 5px; border-radius:3px; transition:all .2s; }
+.del-btn:hover { color:var(--danger); background:rgba(255,51,85,.1); }
+
+.act-btn {
+  padding:3px 8px; border-radius:4px; border:none; cursor:pointer;
+  font-family:var(--mono); font-size:9px; font-weight:700;
+  text-transform:uppercase; transition:all .2s;
+}
+.act-btn.close { background:rgba(255,51,85,.15); color:var(--danger); }
+.act-btn.close:hover { background:rgba(255,51,85,.3); }
+
+/* ── FORM ── */
+.form-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+.fg { display:flex; flex-direction:column; gap:5px; }
+.fg.full { grid-column:1/-1; }
+.fg label { font-size:9px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+.fg input, .fg select {
+  background:var(--surface2); border:1px solid var(--border); border-radius:6px;
+  padding:9px 11px; color:var(--text); font-family:var(--mono); font-size:11px;
+}
+.fg input:focus, .fg select:focus { outline:none; border-color:var(--accent); }
+.fg select option { background:var(--surface); }
+.form-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ── CHART ── */
+.chart-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; }
+.chart-card h3 { font-size:10px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; margin-bottom:12px; }
+
+/* ── AI CHAT ── */
+.chat-hdr {
+  padding:14px 18px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.chat-title { font-family:var(--display); font-size:14px; font-weight:700; }
+.chat-sub   { font-size:9px; color:var(--muted); margin-top:2px; }
+.ai-pill {
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:var(--bg); font-size:9px; font-weight:800;
+  padding:3px 8px; border-radius:20px; letter-spacing:.1em;
+}
+.chat-msgs {
+  flex:1; overflow-y:auto; padding:14px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.msg {
+  max-width:93%; padding:11px 13px; border-radius:10px;
+  font-size:11px; line-height:1.65; animation:fadeUp .3s ease;
+}
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.msg.user { align-self:flex-end; background:linear-gradient(135deg,rgba(0,200,255,.13),rgba(0,255,157,.07)); border:1px solid rgba(0,200,255,.18); }
+.msg.ai   { align-self:flex-start; background:var(--surface2); border:1px solid var(--border); }
+.msg.sys  { align-self:center; text-align:center; background:rgba(255,215,0,.05); border:1px solid rgba(255,215,0,.2); color:var(--gold); font-size:10px; max-width:100%; }
+.msg-lbl  { font-size:9px; color:var(--muted); margin-bottom:4px; letter-spacing:.1em; text-transform:uppercase; }
+.typing span { animation:blink 1.4s infinite; }
+.typing span:nth-child(2) { animation-delay:.2s; }
+.typing span:nth-child(3) { animation-delay:.4s; }
+@keyframes blink { 0%,80%,100%{opacity:0} 40%{opacity:1} }
+
+.quick-bar { padding:8px 14px; border-top:1px solid var(--border); display:flex; gap:5px; flex-wrap:wrap; }
+.qbtn {
+  padding:4px 9px; background:var(--surface2); border:1px solid var(--border);
+  border-radius:20px; font-family:var(--mono); font-size:9px; color:var(--muted);
+  cursor:pointer; transition:all .2s; white-space:nowrap;
+}
+.qbtn:hover { border-color:var(--accent); color:var(--accent); }
+
+.chat-input-row {
+  padding:12px 14px; border-top:1px solid var(--border);
+  display:flex; gap:8px; align-items:flex-end;
+}
+#chat-in {
+  flex:1; background:var(--surface2); border:1px solid var(--border);
+  border-radius:7px; padding:9px 13px; color:var(--text);
+  font-family:var(--mono); font-size:11px; resize:none; max-height:90px; line-height:1.5;
+}
+#chat-in:focus { outline:none; border-color:var(--accent); }
+#send-btn {
+  width:40px; height:40px; border-radius:7px; border:none;
+  background:var(--accent); color:var(--bg); cursor:pointer; font-size:17px;
+  display:flex; align-items:center; justify-content:center; transition:all .2s; flex-shrink:0;
+}
+#send-btn:hover { background:#29d6ff; transform:scale(1.05); }
+#send-btn:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; transform:none; }
+
+/* ── CONFIRM MODAL ── */
+#modal-overlay {
+  display:none; position:fixed; inset:0; z-index:100;
+  background:rgba(0,0,0,.75); backdrop-filter:blur(6px);
+  align-items:center; justify-content:center;
+}
+#modal-overlay.show { display:flex; }
+.modal {
+  background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:28px; width:360px; animation:fadeUp .3s ease;
+}
+.modal h2 { font-family:var(--display); font-size:18px; margin-bottom:8px; color:var(--accent); }
+.modal p  { font-size:12px; color:var(--text); line-height:1.7; margin-bottom:18px; }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; }
+.modal-detail {
+  background:var(--surface2); border:1px solid var(--border); border-radius:8px;
+  padding:12px; font-size:11px; line-height:1.8; margin-bottom:16px; color:var(--text);
+}
+.modal-detail span { color:var(--accent); font-weight:700; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- CONFIRM MODAL -->
+<div id="modal-overlay">
+  <div class="modal">
+    <h2>⚡ Conferma Ordine</h2>
+    <p>Stai per inviare un ordine <strong>REALE</strong> su Capital.com. Verifica i dettagli:</p>
+    <div class="modal-detail" id="modal-detail"></div>
+    <div id="modal-warn" class="alert warn" style="margin-bottom:14px;display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Annulla</button>
+      <button class="btn btn-danger" id="modal-confirm-btn" onclick="confirmOrder()">Invia Ordine</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">S</div>
+    <div>
+      <div class="logo-name">Progetto <span>Sirus</span></div>
+      <div class="logo-sub">Capital.com Live Integration</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="session-pill">
+      <div class="sdot" id="sdot"></div>
+      <span id="slabel">Fuori Sessione</span>
+    </div>
+    <div class="clock" id="clk">--:--:--</div>
+  </div>
+</header>
+
+<!-- CONNECTION BAR -->
+<div id="conn-bar">
+  <label>Capital.com</label>
+  <input class="conn-input" id="conn-email" type="email" placeholder="Email account">
+  <input class="conn-input" id="conn-pass"  type="password" placeholder="Password API">
+  <input class="conn-input" id="conn-key"   type="password" placeholder="API Key">
+  <button class="btn btn-accent" onclick="connectCapital()">Connetti</button>
+  <button class="btn btn-outline" onclick="disconnectCapital()">Disconnetti</button><button class="btn btn-outline" onclick="disconnectCapital(true)" title="Disconnetti e cancella credenziali salvate" style="font-size:10px;padding:7px 10px;">🗑️ Dimentica</button>
+  <span id="conn-status">⬤ Non connesso</span>
+
+  <div style="width:1px;height:24px;background:var(--border);margin:0 4px;"></div>
+  <label>🔑 Claude API Key</label>
+
+  <span id="ai-status" style="font-size:11px;"></span>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active demo" id="btn-demo" onclick="setMode('demo')">DEMO</button>
+    <button class="mode-btn live"        id="btn-live" onclick="setMode('live')">LIVE ⚠️</button>
+  </div>
+</div>
+
+<div class="app">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="tabs">
+      <button class="tab active" onclick="tab('dash')">📊 Dashboard</button>
+      <button class="tab" onclick="tab('pos')">📂 Posizioni Live</button>
+      <button class="tab" onclick="tab('log')">📋 Trade Log</button>
+      <button class="tab" onclick="tab('new')">➕ Nuovo Ordine</button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="pane active" id="pane-dash">
+      <div id="main-alert" class="alert hidden"></div>
+
+      <div class="kpi-row">
+        <div class="kpi blue">
+          <div class="kpi-label">Capitale</div>
+          <div class="kpi-val neu" id="kpi-cap">€ —</div>
+          <div class="kpi-sub" id="kpi-cap-sub">Non connesso</div>
+        </div>
+        <div class="kpi green">
+          <div class="kpi-label">P/L Oggi</div>
+          <div class="kpi-val neu" id="kpi-pl">€ 0</div>
+          <div class="pbar"><div class="pfill g" id="pl-bar" style="width:0%"></div></div>
+          <div class="kpi-sub" id="kpi-pl-sub">0% / target 1.5%</div>
+        </div>
+        <div class="kpi warn">
+          <div class="kpi-label">Drawdown</div>
+          <div class="kpi-val" id="kpi-dd" style="color:var(--gold)">€ 0</div>
+          <div class="pbar"><div class="pfill r" id="dd-bar" style="width:0%"></div></div>
+          <div class="kpi-sub" id="kpi-dd-sub">0% / stop 2%</div>
+        </div>
+        <div class="kpi blue">
+          <div class="kpi-label">Win Rate</div>
+          <div class="kpi-val neu" id="kpi-wr">—</div>
+          <div class="kpi-sub" id="kpi-wr-sub">0 trade</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div>
+          <div class="section-hdr" style="margin-bottom:12px;">Performance</div>
+          <div class="stat-grid">
+            <div class="stat"><div class="v" id="s-win" style="color:var(--accent2)">0</div><div class="l">WIN</div></div>
+            <div class="stat"><div class="v" id="s-loss" style="color:var(--danger)">0</div><div class="l">LOSS</div></div>
+            <div class="stat"><div class="v" id="s-be" style="color:var(--gold)">0</div><div class="l">B/E</div></div>
+            <div class="stat"><div class="v" id="s-consec" style="color:var(--warn)">0</div><div class="l">Consec.</div></div>
+            <div class="stat"><div class="v" id="s-tot">0</div><div class="l">Tot.</div></div>
+            <div class="stat"><div class="v" id="s-pip" style="color:var(--accent)">0</div><div class="l">Pip</div></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>P/L per Trade (€)</h3>
+          <canvas id="pl-chart" height="130"></canvas>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-hdr" style="margin-bottom:10px;">Sessioni</div>
+        <div class="sess-row">
+          <div class="sess" id="s-london"><div class="st">08:00–11:00</div><div class="sn">🇬🇧 Londra</div></div>
+          <div class="sess" id="s-pause"><div class="st">12:00–13:30</div><div class="sn" style="color:var(--danger)">⛔ Pausa</div></div>
+          <div class="sess" id="s-ny"><div class="st">14:00–17:00</div><div class="sn">🇺🇸 New York</div></div>
+          <div class="sess" id="s-close"><div class="st">17:00+</div><div class="sn" style="color:var(--warn)">Chiusura</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POSIZIONI LIVE -->
+    <div class="pane" id="pane-pos">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div class="section-hdr">Posizioni Aperte su Capital.com</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" onclick="refreshPositions()" style="font-size:10px;padding:5px 12px;">↻ Aggiorna</button>
+          <button class="btn btn-danger" onclick="closeAllPositions()" style="font-size:10px;padding:5px 12px;">⛔ Chiudi Tutto</button>
+        </div>
+      </div>
+      <div id="pos-container">
+        <div style="text-align:center;padding:40px;color:var(--muted);font-size:11px;">
+          <div style="font-size:32px;margin-bottom:10px;">📡</div>
+          Connetti Capital.com per vedere le posizioni live
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADE LOG -->
+    <div class="pane" id="pane-log">
+      <div class="section-hdr">Registro Trade di Oggi</div>
+      <div id="log-container">
+        <div style="text-align:center;padding:40px;color:var(--muted);font-size:11px;">
+          <div style="font-size:32px;margin-bottom:10px;">📭</div>
+          Nessun trade ancora
+        </div>
+      </div>
+    </div>
+
+    <!-- NUOVO ORDINE -->
+    <div class="pane" id="pane-new">
+      <div class="section-hdr">Nuovo Ordine — Capital.com</div>
+      <div class="alert info" id="order-info" style="margin-bottom:4px;">
+        ℹ️ L'ordine verrà inviato su <strong id="order-mode-label">DEMO</strong>. Ogni ordine richiede conferma manuale.
+      </div>
+      <div class="form-grid">
+        <div class="fg">
+          <label>Coppia (Epic)</label>
+          <select id="o-epic">
+            <option value="EURUSD">EUR/USD</option>
+            <option value="GBPUSD">GBP/USD</option>
+            <option value="USDJPY">USD/JPY</option>
+            <option value="EURGBP">EUR/GBP</option>
+            <option value="AUDUSD">AUD/USD</option>
+            <option value="USDCAD">USD/CAD</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Direzione</label>
+          <select id="o-dir">
+            <option value="BUY">BUY ↑</option>
+            <option value="SELL">SELL ↓</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Dimensione (Lotti)</label>
+          <input type="number" id="o-size" value="0.1" step="0.01" min="0.01">
+        </div>
+        <div class="fg">
+          <label>Stop Loss (pip)</label>
+          <input type="number" id="o-sl" value="10" min="1">
+        </div>
+        <div class="fg">
+          <label>Take Profit (pip)</label>
+          <input type="number" id="o-tp" value="15" min="1">
+        </div>
+        <div class="fg">
+          <label>Tipo Ordine</label>
+          <select id="o-type">
+            <option value="MARKET">Market</option>
+            <option value="LIMIT">Limit</option>
+            <option value="STOP">Stop</option>
+          </select>
+        </div>
+        <div class="fg full">
+          <label>Note Setup</label>
+          <input type="text" id="o-note" placeholder="es. Pin bar su EMA21, bias H1 bullish...">
+        </div>
+      </div>
+      <div class="form-actions" style="margin-top:4px;">
+        <button class="btn btn-green" onclick="prepareOrder()">📤 Prepara Ordine</button>
+        <button class="btn btn-accent" onclick="analyzeSetup()">🤖 Analizza con AI</button>
+        <button class="btn btn-outline" onclick="calcLotSize()">📐 Calcola Lot Size</button>
+      </div>
+      <div id="lotsize-result" class="alert info hidden" style="margin-top:4px;"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: AI CHAT -->
+  <div class="right">
+    <div class="chat-hdr">
+      <div>
+        <div class="chat-title">Sirus AI Assistant</div>
+        <div class="chat-sub">Claude · Capital.com Live · Strategia integrata</div>
+      </div>
+      <div class="ai-pill">LIVE AI</div>
+    </div>
+
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg sys">
+        Benvenuto nel Progetto Sirus Live!<br>
+        Connetti Capital.com e inserisci la chiave Claude per iniziare.
+      </div>
+    </div>
+
+    <div class="quick-bar">
+      <button class="qbtn" onclick="q('Analizza il mio setup attuale')">📊 Analisi</button>
+      <button class="qbtn" onclick="q('Come sto andando oggi? Fammi un recap')">📈 Recap</button>
+      <button class="qbtn" onclick="q('Ho 3 loss consecutivi, cosa faccio?')">⚠️ 3 Loss</button>
+      <button class="qbtn" onclick="q('Quali coppie sono migliori adesso?')">💱 Coppie</button>
+      <button class="qbtn" onclick="q('Chiudi tutte le posizioni perdenti')">🔴 Chiudi loss</button>
+    </div>
+
+    <div class="chat-input-row">
+      <textarea id="chat-in" rows="1"
+        placeholder="Chiedi all'AI di aprire/chiudere trade, analizzare setup..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea>
+      <button id="send-btn" onclick="send()">↑</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let cst = null, secToken = null;
+let mode = 'demo';
+let aiKey = '';
+let trades = [];
+let livePositions = [];
+let chatHistory = [];
+let plChartInst = null;
+let pendingOrder = null;
+let refreshTimer = null;
+let pingTimer = null;
+let CAPITAL = 20000;
+
+const BASE = {
+  demo: 'https://demo-api-capital.backend-capital.com',
+  live: 'https://api-capital.backend-capital.com'
+};
+const STOP = 400, TARGET = 300;
+
+// ═══════════════════════════════════════════════
+// CLOCK & SESSIONS
+// ═══════════════════════════════════════════════
+function tick() {
+  const now = new Date();
+  document.getElementById('clk').textContent =
+    now.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const h = now.getHours(), m = now.getMinutes();
+
+  const inL = h >= 8 && h < 11;
+  const inP = (h === 12) || (h === 13 && m < 30);
+  const inN = h >= 14 && h < 17;
+  const inC = h >= 17;
+
+  const dot = document.getElementById('sdot');
+  const lbl = document.getElementById('slabel');
+
+  ['s-london','s-pause','s-ny','s-close'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('active-sess');
+    el.style.borderColor = 'var(--border)';
+    el.style.background = 'transparent';
+  });
+
+  if (inL) {
+    dot.className='sdot on'; lbl.textContent='🟢 Sessione Londra';
+    const el=document.getElementById('s-london');
+    el.classList.add('active-sess'); el.style.borderColor='var(--accent2)'; el.style.background='rgba(0,255,157,.05)';
+  } else if (inP) {
+    dot.className='sdot off'; lbl.textContent='⛔ Pausa Pranzo';
+    const el=document.getElementById('s-pause');
+    el.classList.add('active-sess'); el.style.borderColor='var(--danger)';
+  } else if (inN) {
+    dot.className='sdot on'; lbl.textContent='🟢 Sessione New York';
+    const el=document.getElementById('s-ny');
+    el.classList.add('active-sess'); el.style.borderColor='var(--accent2)'; el.style.background='rgba(0,255,157,.05)';
+  } else if (inC) {
+    dot.className='sdot warn'; lbl.textContent='🟡 Chiusura Europa';
+    const el=document.getElementById('s-close');
+    el.classList.add('active-sess'); el.style.borderColor='var(--warn)';
+  } else {
+    dot.className='sdot'; lbl.textContent='Fuori Sessione';
+  }
+}
+setInterval(tick, 1000); tick();
+
+// ═══════════════════════════════════════════════
+// MODE TOGGLE
+// ═══════════════════════════════════════════════
+function setMode(m) {
+  mode = m;
+  document.getElementById('btn-demo').className = 'mode-btn' + (m==='demo'?' active demo':'');
+  document.getElementById('btn-live').className = 'mode-btn' + (m==='live'?' active live':'');
+  document.getElementById('order-mode-label').textContent = m.toUpperCase();
+  const infoEl = document.getElementById('order-info');
+  if (m === 'live') {
+    infoEl.className = 'alert danger';
+    infoEl.innerHTML = '⚠️ Modalità <strong>LIVE</strong> — Gli ordini usano denaro REALE. Procedi con cautela.';
+  } else {
+    infoEl.className = 'alert info';
+    infoEl.innerHTML = 'ℹ️ Modalità <strong>DEMO</strong> — Ordini simulati, nessun rischio reale.';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// CAPITAL.COM API
+// ═══════════════════════════════════════════════
+async function capitalReq(method, path, body = null) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (cst && secToken) {
+    headers['CST'] = cst;
+    headers['X-SECURITY-TOKEN'] = secToken;
+  }
+  const opts = { method, headers };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(BASE[mode] + '/api/v1' + path, opts);
+  return res;
+}
+
+async function connectCapital() {
+  const email  = document.getElementById('conn-email').value.trim();
+  const pass   = document.getElementById('conn-pass').value.trim();
+  const apiKey = document.getElementById('conn-key').value.trim();
+
+  if (!email || !pass || !apiKey) {
+    setConnStatus('err', '✗ Completa tutti i campi');
+    return;
+  }
+  setConnStatus('info', '⟳ Connessione in corso...');
+  try {
+    const res = await fetch(BASE[mode] + '/api/v1/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CAP-API-KEY': apiKey },
+      body: JSON.stringify({ identifier: email, password: pass, encryptedPassword: false })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      setConnStatus('err', '✗ ' + (err.errorCode || 'Errore autenticazione'));
+      return;
+    }
+    cst      = res.headers.get('CST');
+    secToken = res.headers.get('X-SECURITY-TOKEN');
+    // Salva credenziali nel localStorage
+    localStorage.setItem('sirus_cap_email', email);
+    localStorage.setItem('sirus_cap_pass', pass);
+    localStorage.setItem('sirus_cap_key', apiKey);
+    localStorage.setItem('sirus_cap_mode', mode);
+    setConnStatus('ok', '✓ Connesso a Capital.com (' + mode.toUpperCase() + ') — credenziali salvate');
+    appendSys('✅ Capital.com connesso in modalità ' + mode.toUpperCase() + '! Carico il tuo conto...');
+    await loadAccount();
+    await refreshPositions();
+    startPing();
+    startAutoRefresh();
+  } catch(e) {
+    setConnStatus('err', '✗ Errore: ' + e.message);
+  }
+}
+
+async function loadAccount() {
+  try {
+    const res = await capitalReq('GET', '/accounts');
+    const data = await res.json();
+    if (data.accounts && data.accounts.length > 0) {
+      const acc = data.accounts.find(a => a.preferred) || data.accounts[0];
+      CAPITAL = acc.balance?.balance || 20000;
+      document.getElementById('kpi-cap').textContent = '€ ' + CAPITAL.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+      document.getElementById('kpi-cap-sub').textContent = (acc.accountType || 'CFD') + ' · ' + mode.toUpperCase();
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function refreshPositions() {
+  if (!cst) return;
+  try {
+    const res = await capitalReq('GET', '/positions');
+    const data = await res.json();
+    livePositions = data.positions || [];
+    renderPositions();
+    syncLiveToLog();
+  } catch(e) { console.error('refresh error', e); }
+}
+
+function renderPositions() {
+  const c = document.getElementById('pos-container');
+  if (livePositions.length === 0) {
+    c.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:11px;"><div style="font-size:28px;margin-bottom:8px;">📭</div>Nessuna posizione aperta</div>';
+    return;
+  }
+  let html = `<table class="tbl"><thead><tr>
+    <th>Epic</th><th>Dir.</th><th>Size</th><th>Entry</th><th>P/L €</th><th>SL</th><th>TP</th><th></th>
+  </tr></thead><tbody>`;
+  livePositions.forEach(p => {
+    const pos = p.position;
+    const mkt = p.market;
+    const pl = pos.upl || 0;
+    const plClass = pl >= 0 ? 'pl-p' : 'pl-n';
+    html += `<tr>
+      <td style="font-weight:700">${mkt.epic || mkt.instrumentName}</td>
+      <td><span class="badge ${pos.direction}">${pos.direction}</span></td>
+      <td>${pos.size}</td>
+      <td>${pos.level}</td>
+      <td class="${plClass}">${pl >= 0 ? '+' : ''}€${pl.toFixed(2)}</td>
+      <td>${pos.stopLevel || '—'}</td>
+      <td>${pos.limitLevel || '—'}</td>
+      <td>
+        <button class="act-btn close" onclick="closePosition('${pos.dealId}','${mkt.epic}')">Chiudi</button>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  c.innerHTML = html;
+}
+
+function syncLiveToLog() {
+  // update open trades in log that now have real P/L
+  livePositions.forEach(p => {
+    const existing = trades.find(t => t.dealId === p.position.dealId);
+    if (existing) {
+      existing.pl = p.position.upl || 0;
+    }
+  });
+  updateDash();
+  renderLog();
+}
+
+async function closePosition(dealId, epic) {
+  if (!cst) { appendSys('⚠️ Non connesso'); return; }
+  if (!confirm(`Chiudere posizione su ${epic}?`)) return;
+  try {
+    const res = await capitalReq('DELETE', '/positions/' + dealId);
+    const data = await res.json();
+    if (data.dealReference) {
+      appendSys(`✅ Posizione ${epic} chiusa. Ref: ${data.dealReference}`);
+      const t = trades.find(t => t.dealId === dealId);
+      if (t) { t.esito = t.pl >= 0 ? 'WIN' : 'LOSS'; }
+      await refreshPositions();
+    } else {
+      appendSys('❌ Errore chiusura: ' + JSON.stringify(data));
+    }
+  } catch(e) { appendSys('❌ ' + e.message); }
+}
+
+async function closeAllPositions() {
+  if (!cst) return;
+  if (!confirm('Chiudere TUTTE le posizioni aperte?')) return;
+  for (const p of livePositions) {
+    await closePosition(p.position.dealId, p.market.epic);
+    await new Promise(r => setTimeout(r, 200));
+  }
+}
+
+async function sendOrder(epic, direction, size, stopDistance, limitDistance) {
+  const body = {
+    epic, direction, size,
+    orderType: 'MARKET',
+    guaranteedStop: false,
+    stopDistance: stopDistance,
+    limitDistance: limitDistance,
+    currencyCode: 'EUR',
+  };
+  const res = await capitalReq('POST', '/positions', body);
+  return await res.json();
+}
+
+function disconnectCapital(clearSaved = false) {
+  if (cst) capitalReq('DELETE', '/session').catch(() => {});
+  cst = null; secToken = null;
+  if (pingTimer) clearInterval(pingTimer);
+  if (refreshTimer) clearInterval(refreshTimer);
+  if (clearSaved) {
+    localStorage.removeItem('sirus_cap_email');
+    localStorage.removeItem('sirus_cap_pass');
+    localStorage.removeItem('sirus_cap_key');
+    localStorage.removeItem('sirus_cap_mode');
+    document.getElementById('conn-email').value = '';
+    document.getElementById('conn-pass').value = '';
+    document.getElementById('conn-key').value = '';
+    appendSys('🗑️ Credenziali rimosse dal browser.');
+  }
+  setConnStatus('info', '⬤ Disconnesso');
+  livePositions = [];
+  renderPositions();
+  document.getElementById('kpi-cap').textContent = '€ —';
+  document.getElementById('kpi-cap-sub').textContent = 'Non connesso';
+}
+
+function startPing() {
+  if (pingTimer) clearInterval(pingTimer);
+  pingTimer = setInterval(() => {
+    if (cst) capitalReq('GET', '/ping').catch(() => {});
+  }, 8 * 60 * 1000);
+}
+
+function startAutoRefresh() {
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(refreshPositions, 10000);
+}
+
+// ═══════════════════════════════════════════════
+// ORDER FLOW
+// ═══════════════════════════════════════════════
+function prepareOrder() {
+  if (!cst) {
+    appendSys('⚠️ Connetti prima Capital.com per inviare ordini.');
+    return;
+  }
+  pendingOrder = {
+    epic:  document.getElementById('o-epic').value,
+    dir:   document.getElementById('o-dir').value,
+    size:  parseFloat(document.getElementById('o-size').value),
+    sl:    parseFloat(document.getElementById('o-sl').value),
+    tp:    parseFloat(document.getElementById('o-tp').value),
+    note:  document.getElementById('o-note').value,
+  };
+
+  const rr = (pendingOrder.tp / pendingOrder.sl).toFixed(2);
+  const riskEur = (pendingOrder.size * pendingOrder.sl * 10).toFixed(0);
+
+  document.getElementById('modal-detail').innerHTML = `
+    <span>Coppia:</span> ${pendingOrder.epic}<br>
+    <span>Direzione:</span> ${pendingOrder.dir}<br>
+    <span>Dimensione:</span> ${pendingOrder.size} lotti<br>
+    <span>Stop Loss:</span> ${pendingOrder.sl} pip<br>
+    <span>Take Profit:</span> ${pendingOrder.tp} pip<br>
+    <span>R:R ratio:</span> 1:${rr} ${parseFloat(rr) < 1.5 ? '⚠️ sotto il minimo Sirus (1:1.5)' : '✅'}<br>
+    <span>Rischio stimato:</span> ~€${riskEur}<br>
+    <span>Modalità:</span> ${mode.toUpperCase()}
+  `;
+
+  const warnings = [];
+  if (parseFloat(rr) < 1.5) warnings.push('R:R sotto il minimo 1:1.5 della strategia Sirus');
+  const dd = Math.min(0, trades.reduce((s,t) => s+t.pl, 0));
+  if (Math.abs(dd) >= STOP) warnings.push('⛔ HAI RAGGIUNTO IL DAILY STOP! Non dovresti aprire nuovi trade.');
+
+  let consec = 0;
+  for (let i = trades.length-1; i>=0; i--) {
+    if (trades[i].esito==='LOSS') consec++; else break;
+  }
+  if (consec >= 3) warnings.push('3 loss consecutivi — regola Sirus: pausa obbligatoria 1 ora');
+
+  const wEl = document.getElementById('modal-warn');
+  if (warnings.length > 0) {
+    wEl.style.display = 'flex';
+    wEl.textContent = '⚠️ ' + warnings.join(' | ');
+  } else {
+    wEl.style.display = 'none';
+  }
+
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('show');
+  pendingOrder = null;
+}
+
+async function confirmOrder() {
+  if (!pendingOrder) return;
+  document.getElementById('modal-confirm-btn').disabled = true;
+  document.getElementById('modal-confirm-btn').textContent = 'Invio...';
+  try {
+    const data = await sendOrder(
+      pendingOrder.epic, pendingOrder.dir, pendingOrder.size,
+      pendingOrder.sl, pendingOrder.tp
+    );
+    closeModal();
+    if (data.dealReference) {
+      const trade = {
+        dealId:  data.dealId || data.dealReference,
+        coppia:  pendingOrder.epic,
+        dir:     pendingOrder.dir,
+        orario:  new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}),
+        pip:     0, pl: 0, esito: 'OPEN', note: pendingOrder.note,
+        sl: pendingOrder.sl, tp: pendingOrder.tp
+      };
+      trades.push(trade);
+      updateDash(); renderLog();
+      appendSys(`✅ Ordine inviato! DealRef: ${data.dealReference}`);
+      tab('pos');
+      await refreshPositions();
+    } else {
+      appendSys('❌ Errore ordine: ' + (data.errorCode || JSON.stringify(data)));
+    }
+  } catch(e) {
+    appendSys('❌ ' + e.message);
+  }
+  document.getElementById('modal-confirm-btn').disabled = false;
+  document.getElementById('modal-confirm-btn').textContent = 'Invia Ordine';
+}
+
+function calcLotSize() {
+  const risk = CAPITAL * 0.005;
+  const sl = parseFloat(document.getElementById('o-sl').value) || 10;
+  const lot = (risk / (sl * 10)).toFixed(2);
+  const el = document.getElementById('lotsize-result');
+  el.className = 'alert ok';
+  el.textContent = `📐 Lot size ottimale per rischio 0.5% (€${risk.toFixed(0)}): ${lot} lotti (SL ${sl} pip)`;
+  document.getElementById('o-size').value = lot;
+}
+
+// ═══════════════════════════════════════════════
+// TABS & LOG
+// ═══════════════════════════════════════════════
+function tab(name) {
+  const names = ['dash','pos','log','new'];
+  document.querySelectorAll('.tab').forEach((b,i) => b.classList.toggle('active', names[i]===name));
+  document.querySelectorAll('.pane').forEach((p,i) => p.classList.toggle('active', names[i]===name));
+}
+
+function renderLog() {
+  const c = document.getElementById('log-container');
+  if (!trades.length) {
+    c.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-size:11px;"><div style="font-size:28px;margin-bottom:8px;">📭</div>Nessun trade</div>';
+    return;
+  }
+  c.innerHTML = `<table class="tbl">
+    <thead><tr><th>#</th><th>Ora</th><th>Coppia</th><th>Dir.</th><th>Pip</th><th>P/L</th><th>Esito</th><th>Note</th><th></th></tr></thead>
+    <tbody>${trades.map((t,i) => `<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td>${t.orario}</td>
+      <td style="font-weight:700">${t.coppia}</td>
+      <td><span class="badge ${t.dir}">${t.dir}</span></td>
+      <td class="${t.pip>=0?'pl-p':'pl-n'}">${t.pip>0?'+':''}${t.pip}</td>
+      <td class="${t.pl>=0?'pl-p':'pl-n'}">${t.pl>0?'+':''}€${parseFloat(t.pl).toFixed(0)}</td>
+      <td><span class="badge ${t.esito}">${t.esito}</span></td>
+      <td style="color:var(--muted);font-size:9px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.note||'—'}</td>
+      <td><button class="del-btn" onclick="delTrade(${i})">✕</button></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function delTrade(i) { trades.splice(i,1); updateDash(); renderLog(); }
+
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+function updateDash() {
+  const totalPL = trades.reduce((s,t) => s + parseFloat(t.pl||0), 0);
+  const pips = trades.reduce((s,t) => s + (t.pip||0), 0);
+  const wins = trades.filter(t=>t.esito==='WIN').length;
+  const loss = trades.filter(t=>t.esito==='LOSS').length;
+  const be   = trades.filter(t=>t.esito==='BE').length;
+  const tot  = trades.length;
+  let consec = 0;
+  for (let i=trades.length-1; i>=0; i--) { if (trades[i].esito==='LOSS') consec++; else break; }
+  const wr = tot > 0 ? (wins/tot*100).toFixed(0) : '—';
+  const dd = Math.min(0, totalPL);
+
+  document.getElementById('kpi-pl').textContent = (totalPL>=0?'+':'')+'€'+totalPL.toFixed(0);
+  document.getElementById('kpi-pl').className = 'kpi-val '+(totalPL>0?'pos':totalPL<0?'neg':'neu');
+  document.getElementById('kpi-pl-sub').textContent = (totalPL/CAPITAL*100).toFixed(2)+'% / target 1.5%';
+  document.getElementById('pl-bar').style.width = Math.min(100, Math.max(0, totalPL/TARGET*100))+'%';
+
+  document.getElementById('kpi-dd').textContent = dd<0?'-€'+Math.abs(dd).toFixed(0):'€0';
+  document.getElementById('kpi-dd').style.color = dd<-200?'var(--danger)':dd<0?'var(--warn)':'var(--gold)';
+  document.getElementById('kpi-dd-sub').textContent = (Math.abs(dd)/CAPITAL*100).toFixed(2)+'% / stop 2%';
+  document.getElementById('dd-bar').style.width = Math.min(100, Math.abs(dd)/STOP*100)+'%';
+
+  document.getElementById('kpi-wr').textContent = wr==='—'?'—':wr+'%';
+  document.getElementById('kpi-wr').className = 'kpi-val '+(wr>=60?'pos':wr<40&&wr!=='—'?'neg':'neu');
+  document.getElementById('kpi-wr-sub').textContent = tot+' trade';
+
+  document.getElementById('s-win').textContent = wins;
+  document.getElementById('s-loss').textContent = loss;
+  document.getElementById('s-be').textContent = be;
+  document.getElementById('s-consec').textContent = consec;
+  document.getElementById('s-tot').textContent = tot;
+  document.getElementById('s-pip').textContent = (pips>0?'+':'')+pips;
+
+  const al = document.getElementById('main-alert');
+  if (Math.abs(dd)>=STOP) {
+    al.className='alert danger'; al.textContent='🚨 DAILY STOP RAGGIUNTO (-2%). Chiudi tutto. STOP immediato.';
+    if (cst) { closeAllPositions(); }
+  } else if (consec>=3) {
+    al.className='alert warn'; al.textContent='⚠️ 3 loss consecutivi — pausa obbligatoria 1 ora.';
+  } else if (totalPL>=TARGET) {
+    al.className='alert ok'; al.textContent='✅ Target giornaliero raggiunto! Facoltativo: dimezza i lot.';
+  } else {
+    al.className='alert hidden';
+  }
+  renderChart();
+}
+
+function renderChart() {
+  const ctx = document.getElementById('pl-chart').getContext('2d');
+  if (plChartInst) plChartInst.destroy();
+  const data = trades.map(t => parseFloat(t.pl||0));
+  plChartInst = new Chart(ctx, {
+    type:'bar',
+    data:{ labels: trades.map((_,i)=>`T${i+1}`),
+      datasets:[{ data, backgroundColor: data.map(v=>v>=0?'rgba(0,255,157,.75)':'rgba(255,51,85,.75)'), borderRadius:3, borderSkipped:false }]
+    },
+    options:{
+      responsive:true, plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{color:'rgba(255,255,255,.02)'},ticks:{color:'#4a6080',font:{family:'Space Mono',size:9}}},
+        y:{grid:{color:'rgba(255,255,255,.03)'},ticks:{color:'#4a6080',font:{family:'Space Mono',size:9},callback:v=>'€'+v}}
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// AI KEY
+// ═══════════════════════════════════════════════
+function saveAiKey() {
+  aiKey = 'cloudflare-proxy';
+}
+
+// ═══════════════════════════════════════════════
+// AI CHAT
+// ═══════════════════════════════════════════════
+function appendMsg(role, text) {
+  const c = document.getElementById('chat-msgs');
+  const d = document.createElement('div');
+  d.className = `msg ${role}`;
+  if (role !== 'sys') {
+    const l = document.createElement('div');
+    l.className = 'msg-lbl';
+    l.textContent = role==='user' ? 'Tu' : '🤖 Sirus AI';
+    d.appendChild(l);
+  }
+  const t = document.createElement('div');
+  t.textContent = text;
+  d.appendChild(t);
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+function appendSys(t) { appendMsg('sys', t); }
+
+function addTyping() {
+  const c = document.getElementById('chat-msgs');
+  const d = document.createElement('div');
+  d.className = 'msg ai'; d.id = 'typing';
+  d.innerHTML = '<div class="msg-lbl">🤖 Sirus AI</div><div class="typing"><span>●</span><span>●</span><span>●</span></div>';
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function rmTyping() { const e=document.getElementById('typing'); if(e) e.remove(); }
+
+function buildCtx() {
+  const h = new Date().getHours();
+  let sess = 'fuori sessione';
+  if (h>=8&&h<11)  sess='Sessione Londra (ALTA priorità)';
+  if (h>=12&&h<14) sess='Pausa pranzo (NON operare)';
+  if (h>=14&&h<17) sess='Sessione New York (ALTA priorità)';
+  if (h>=17)       sess='Chiusura Europa (ridurre)';
+
+  const totalPL = trades.reduce((s,t)=>s+parseFloat(t.pl||0),0);
+  const wins = trades.filter(t=>t.esito==='WIN').length;
+  const loss = trades.filter(t=>t.esito==='LOSS').length;
+  let consec=0;
+  for(let i=trades.length-1;i>=0;i--){if(trades[i].esito==='LOSS')consec++;else break;}
+
+  const posStr = livePositions.length > 0
+    ? '\nPOSIZIONI APERTE SU CAPITAL.COM:\n' + livePositions.map(p =>
+        `  ${p.market.epic} ${p.position.direction} x${p.position.size} · P/L €${(p.position.upl||0).toFixed(2)}`
+      ).join('\n')
+    : '\nNessuna posizione aperta.';
+
+  return `Sei l'assistente AI del Progetto Sirus, integrato con Capital.com in modalità ${mode.toUpperCase()}.
+
+REGOLE CHIAVE SIRUS:
+- Rischio per trade: 0.5% del capitale (€${(CAPITAL*0.005).toFixed(0)})
+- Stop loss giornaliero: -2% (€${(CAPITAL*0.02).toFixed(0)}) → stop trading immediato
+- Target giornaliero: 1–1.5% (€${(CAPITAL*0.01).toFixed(0)}–€${(CAPITAL*0.015).toFixed(0)})
+- 3 loss consecutivi → pausa obbligatoria 1 ora
+- Sessioni: 08:00–11:00 (Londra) · 14:00–17:00 (NY)
+- SL: 8–12 pip · TP: 12–20 pip · R:R min 1:1.5
+- MAI revenge trading · No trade 30min prima/dopo news
+
+STATO ATTUALE:
+- Sessione: ${sess}
+- Capitale: €${CAPITAL.toLocaleString('it-IT')}
+- P/L oggi: €${totalPL.toFixed(0)} (${(totalPL/CAPITAL*100).toFixed(2)}%)
+- WIN: ${wins} | LOSS: ${loss} | Loss consecutivi: ${consec}
+- Connesso a Capital.com: ${cst ? 'SÌ (' + mode.toUpperCase() + ')' : 'NO'}
+${posStr}
+${trades.length>0?'\nULTIMI TRADE:\n'+trades.slice(-4).map(t=>`  ${t.orario} ${t.coppia} ${t.dir} → ${t.esito} (P/L €${t.pl})`).join('\n'):''}
+
+CAPACITÀ OPERATIVE:
+- Puoi suggerire di aprire trade → l'utente dovrà confermare nel form "Nuovo Ordine"
+- Puoi suggerire di chiudere posizioni specifiche → l'utente dovrà confermare
+- Analizza sempre R:R e verifica rispetto alle regole Sirus prima di raccomandare un trade
+
+Rispondi in italiano. Sii conciso e diretto. Avverti chiaramente se una regola viene violata.`;
+}
+
+async function send(override = null) {
+  
+  const inp = document.getElementById('chat-in');
+  const txt = override || inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+  document.getElementById('send-btn').disabled = true;
+  appendMsg('user', txt);
+  chatHistory.push({role:'user',content:txt});
+  addTyping();
+  try {
+    const res = await fetch('https://sirus-trading.andrea-cali27.workers.dev/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: buildCtx(),
+        messages: chatHistory.slice(-14)
+      })
+    });
+
+    // Leggi il testo grezzo prima di fare il parse JSON
+    const rawText = await res.text();
+    rmTyping();
+
+    if (!rawText || rawText.trim() === '') {
+      appendSys('❌ Il server ha restituito una risposta vuota. Verifica che ANTHROPIC_API_KEY sia impostata correttamente su Cloudflare.');
+      document.getElementById('send-btn').disabled = false;
+      return;
+    }
+
+    let data;
+    try {
+      data = JSON.parse(rawText);
+    } catch(parseErr) {
+      appendSys('❌ Risposta non valida dal server: ' + rawText.substring(0, 150));
+      document.getElementById('send-btn').disabled = false;
+      return;
+    }
+
+    if (data.error) {
+      appendSys('❌ Errore Claude: ' + data.error.message);
+    } else {
+      const reply = data.content.map(b=>b.text||'').join('');
+      chatHistory.push({role:'assistant',content:reply});
+      appendMsg('ai', reply);
+    }
+  } catch(e) {
+    rmTyping();
+    appendSys('❌ Errore: ' + e.message);
+  }
+  document.getElementById('send-btn').disabled = false;
+}
+
+function q(txt) { document.getElementById('chat-in').value = txt; send(); }
+
+function analyzeSetup() {
+  const epic = document.getElementById('o-epic').value;
+  const dir  = document.getElementById('o-dir').value;
+  const sl   = document.getElementById('o-sl').value;
+  const tp   = document.getElementById('o-tp').value;
+  const note = document.getElementById('o-note').value;
+  const rr   = (tp/sl).toFixed(2);
+  let msg = `Analizza questo setup: ${dir} su ${epic}, SL ${sl} pip, TP ${tp} pip (R:R 1:${rr}).`;
+  if (note) msg += ` Setup: ${note}.`;
+  msg += ' È valido secondo le regole Sirus? Devo aprirlo?';
+  tab('dash');
+  send(msg);
+}
+
+function setConnStatus(type, msg) {
+  const el = document.getElementById('conn-status');
+  el.textContent = msg;
+  el.className = type;
+}
+
+// INIT
+updateDash();
+
+// Carica tutte le credenziali salvate dal localStorage
+(function() {
+  // AI key gestita dal proxy Cloudflare
+  aiKey = 'cloudflare-proxy';
+
+  // Capital.com credenziali
+  const capEmail = localStorage.getItem('sirus_cap_email');
+  const capPass  = localStorage.getItem('sirus_cap_pass');
+  const capKey   = localStorage.getItem('sirus_cap_key');
+  const capMode  = localStorage.getItem('sirus_cap_mode');
+
+  if (capEmail) document.getElementById('conn-email').value = capEmail;
+  if (capPass)  document.getElementById('conn-pass').value  = capPass;
+  if (capKey)   document.getElementById('conn-key').value   = capKey;
+  if (capMode)  setMode(capMode);
+
+  // Se tutte le credenziali sono presenti, connetti automaticamente
+  if (capEmail && capPass && capKey) {
+    setConnStatus('info', '⟳ Riconnessione automatica...');
+    setTimeout(() => connectCapital(), 800);
+  }
+})();
+</script>
+</body>
+</html>
